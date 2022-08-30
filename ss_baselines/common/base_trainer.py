@@ -6,14 +6,14 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import glob
 import os
 import time
 from typing import ClassVar, Dict, List
-import glob
 
 import torch
-
 from habitat import Config, logger
+
 from ss_baselines.common.tensorboard_utils import TensorboardWriter
 from ss_baselines.common.utils import poll_checkpoint_folder
 
@@ -80,15 +80,15 @@ class BaseRLTrainer(BaseTrainer):
 
         if "tensorboard" in self.config.VIDEO_OPTION:
             assert (
-                len(self.config.TENSORBOARD_DIR) > 0
+                    len(self.config.TENSORBOARD_DIR) > 0
             ), "Must specify a tensorboard directory for video display"
         if "disk" in self.config.VIDEO_OPTION:
             assert (
-                len(self.config.VIDEO_DIR) > 0
+                    len(self.config.VIDEO_DIR) > 0
             ), "Must specify a directory for storing videos on disk"
 
         with TensorboardWriter(
-            self.config.TENSORBOARD_DIR, flush_secs=self.flush_secs
+                self.config.TENSORBOARD_DIR, flush_secs=self.flush_secs
         ) as writer:
             # eval last checkpoint in the folder
             if use_last_ckpt:
@@ -157,10 +157,10 @@ class BaseRLTrainer(BaseTrainer):
         return config
 
     def _eval_checkpoint(
-        self,
-        checkpoint_path: str,
-        writer: TensorboardWriter,
-        checkpoint_index: int = 0,
+            self,
+            checkpoint_path: str,
+            writer: TensorboardWriter,
+            checkpoint_index: int = 0,
     ) -> None:
         r"""Evaluates a single checkpoint. Trainer algorithms should
         implement this.
@@ -183,14 +183,14 @@ class BaseRLTrainer(BaseTrainer):
 
     @staticmethod
     def _pause_envs(
-        envs_to_pause,
-        envs,
-        test_recurrent_hidden_states,
-        not_done_masks,
-        current_episode_reward,
-        prev_actions,
-        batch,
-        rgb_frames,
+            envs_to_pause,
+            envs,
+            test_recurrent_hidden_states,
+            not_done_masks,
+            current_episode_reward,
+            prev_actions,
+            batch,
+            rgb_frames,
     ):
         # pausing self.envs with no new episode
         if len(envs_to_pause) > 0:
@@ -201,8 +201,8 @@ class BaseRLTrainer(BaseTrainer):
 
             # indexing along the batch dimensions
             test_recurrent_hidden_states = test_recurrent_hidden_states[
-                :, state_index
-            ]
+                                           :, state_index
+                                           ]
             not_done_masks = not_done_masks[state_index]
             current_episode_reward = current_episode_reward[state_index]
             prev_actions = prev_actions[state_index]

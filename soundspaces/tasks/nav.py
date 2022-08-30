@@ -7,26 +7,25 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Type, Union
-import logging
+from typing import Any, Union
 
-import numpy as np
-import torch
 import cv2
 import librosa
-from gym import spaces
-from skimage.measure import block_reduce
 import networkx as nx
+import numpy as np
+import torch
+from gym import spaces
 from habitat.config import Config
 from habitat.core.dataset import Episode
-from habitat_sim.utils.common import quat_from_angle_axis, quat_from_coeffs, quat_to_angle_axis
-from habitat.tasks.nav.nav import DistanceToGoal, Measure, EmbodiedTask, Success
 from habitat.core.registry import registry
 from habitat.core.simulator import (
     Sensor,
     SensorTypes,
     Simulator,
 )
+from habitat.tasks.nav.nav import DistanceToGoal, Measure, EmbodiedTask, Success
+from habitat_sim.utils.common import quat_from_coeffs, quat_to_angle_axis
+from skimage.measure import block_reduce
 
 
 @registry.register_sensor
@@ -97,6 +96,7 @@ class SpectrogramSensor(Sensor):
         spectrogram = self._sim.get_current_spectrogram_observation(self.compute_spectrogram)
 
         return spectrogram
+
 
 @registry.register_sensor
 class FilteredSpectrogramSensor(Sensor):
@@ -248,7 +248,6 @@ class SNA(Measure):
             )
 
 
-
 @registry.register_measure
 class NA(Measure):
     r""" Number of actions
@@ -279,6 +278,7 @@ class NA(Measure):
         self._agent_num_action += 1
         self._metric = self._agent_num_action
 
+
 @registry.register_measure
 class DSPL(Measure):
     r"""DSPL (Dynamic Success weighted by Path Length)
@@ -297,7 +297,8 @@ class DSPL(Measure):
 
     def reset_metric(self, *args: Any, episode, **kwargs: Any):
         self._agent_start_index = self._sim._position_to_index(episode.start_position)
-        self._agent_start_rotation = int(np.around(np.rad2deg(quat_to_angle_axis(quat_from_coeffs(episode.start_rotation))[0]))) % 360
+        self._agent_start_rotation = int(
+            np.around(np.rad2deg(quat_to_angle_axis(quat_from_coeffs(episode.start_rotation))[0]))) % 360
         self._found_closest_goal = False
         self._metric = None
         self._geodesic_distance = episode.info['geodesic_distance']
@@ -314,7 +315,8 @@ class DSPL(Measure):
             self._rotation_angle = self._agent_start_rotation
             self._source_position_index = self._sim._source_position_index
             self._episode_step_count = self._sim._episode_step_count
-            self._shortest_path_nodes = self._sim.get_straight_shortest_path_nodes(self._agent_start_index, self._source_position_index)
+            self._shortest_path_nodes = self._sim.get_straight_shortest_path_nodes(self._agent_start_index,
+                                                                                   self._source_position_index)
             self._required_action_count = 0
             points = list()
             for node in self._shortest_path_nodes[1:]:
@@ -332,10 +334,13 @@ class DSPL(Measure):
                 self._required_action_count += 1
             if self._required_action_count <= self._episode_step_count:
                 self._found_closest_goal = True
-                self._geodesic_distance = nx.shortest_path_length(self._sim.graph, self._agent_start_index, self._source_position_index) * self._sim.config.GRID_SIZE
+                self._geodesic_distance = nx.shortest_path_length(self._sim.graph, self._agent_start_index,
+                                                                  self._source_position_index) * self._sim.config.GRID_SIZE
                 self._shortest_intersection_point = self._sim.graph.nodes()[self._source_position_index]['point']
         ep_success = task.measurements.measures[Success.cls_uuid].get_metric()
-        self._metric = ep_success * (self._geodesic_distance/ max(task.measurements.measures['spl']._agent_episode_distance ,self._geodesic_distance) )
+        self._metric = ep_success * (
+                self._geodesic_distance / max(task.measurements.measures['spl']._agent_episode_distance,
+                                              self._geodesic_distance))
 
 
 @registry.register_sensor(name="EgoMap")

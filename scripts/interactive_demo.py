@@ -4,17 +4,17 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import sys
-import logging
 import argparse
+import logging
+import sys
 
 import numpy as np
 import pygame
-
+from habitat.datasets import make_dataset
 from habitat.sims.habitat_simulator.actions import HabitatSimActions
 from habitat.utils.visualizations import maps
-from habitat.datasets import make_dataset
 from habitat.utils.visualizations.utils import observations_to_image
+
 from ss_baselines.common.environments import NavRLEnv
 from ss_baselines.common.utils import images_to_video_with_audio
 from ss_baselines.dav_nav.config import get_config

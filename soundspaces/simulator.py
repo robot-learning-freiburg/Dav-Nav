@@ -3,34 +3,23 @@
 
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
-
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+import logging
+import os
+import pickle
+import random
 from abc import ABC
 from typing import Any, List, Optional
-# from collections import defaultdict, namedtuple
-import logging
-# import time
-import pickle
-import os
+
+import habitat_sim
+import networkx as nx
+import numpy as np
+import scipy
 import torch
 import torchaudio.transforms as T
-# import torchaudio.functional as F
-
-# import librosa
-import scipy
-from scipy.io import wavfile
-from scipy.signal import fftconvolve
-import numpy as np
-import networkx as nx
 from gym import spaces
-import random
-
 from habitat.core.registry import registry
-import habitat_sim
-from habitat_sim.utils.common import quat_from_angle_axis, quat_from_coeffs, quat_to_angle_axis
-# from habitat.sims.habitat_simulator.habitat_simulator import HabitatSim
-from habitat.sims.habitat_simulator.actions import HabitatSimActions
 from habitat.core.simulator import (
     AgentState,
     Config,
@@ -39,6 +28,11 @@ from habitat.core.simulator import (
     ShortestPathPoint,
     Simulator,
 )
+from habitat.sims.habitat_simulator.actions import HabitatSimActions
+from habitat_sim.utils.common import quat_from_angle_axis, quat_from_coeffs, quat_to_angle_axis
+from scipy.io import wavfile
+from scipy.signal import fftconvolve
+
 from soundspaces.utils import load_metadata
 
 
@@ -205,14 +199,14 @@ class SoundSpacesSim(Simulator, ABC):
                                 'fan.wav', 'horn_2.wav', 'leak.wav', 'person_9.wav', 'creak.wav', 'beeps.wav',
                                 'engine_4.wav', 'waves4.wav', 'turbine_4.wav']
             valSounds = ["fan_6.wav", 'reverb_time.wav', 'fan_4.wav', 'terminal.wav', 'water_waves_2.wav',
-                                'come_again.wav', 'infinitely.wav', 'person_8.wav', 'birds5.wav', 'person_7.wav',
-                                'helicopter.wav',
-                                                  ]
+                         'come_again.wav', 'infinitely.wav', 'person_8.wav', 'birds5.wav', 'person_7.wav',
+                         'helicopter.wav',
+                         ]
             testSounds = ['canon_short_2.wav', 'arrived.wav', 'fan_7.wav',
-                                  'person_10.wav', 'radio_static.wav', 'telephone.wav', 'propeller.wav',
-                                  'person_11.wav',
-                                  'fan.wav', 'leak.wav', 'person_9.wav', 'creak.wav',
-                                  'engine_4.wav', 'waves4.wav', 'turbine_4.wav']
+                          'person_10.wav', 'radio_static.wav', 'telephone.wav', 'propeller.wav',
+                          'person_11.wav',
+                          'fan.wav', 'leak.wav', 'person_9.wav', 'creak.wav',
+                          'engine_4.wav', 'waves4.wav', 'turbine_4.wav']
 
             if self.config['AUDIO']['val_sounds']:
                 self.soundsForAugmentation = [x for x in self.soundsForAugmentation if x in valSounds]
@@ -226,7 +220,6 @@ class SoundSpacesSim(Simulator, ABC):
                 self.audioAugmentationType = "Noaugmentation"
             if self.trainWithDistractor:
                 self.addingDistractor = None
-
 
     def create_sim_config(
             self, _sensor_suite: SensorSuite
@@ -446,13 +439,13 @@ class SoundSpacesSim(Simulator, ABC):
         self._rotation_angle = int(np.around(np.rad2deg(quat_to_angle_axis(quat_from_coeffs(
             self.config.AGENT_0.START_ROTATION))[0]))) % 360
         if self.moving_source:
-            self.source_rotation_angle = random.choice([0,90,180,270])
+            self.source_rotation_angle = random.choice([0, 90, 180, 270])
             if self.config['AUDIO']['val_test_dynamic']:
                 self.current_source_type = "dynamic"
             else:
                 self.current_source_type = random.choice(["static", "dynamic"])
             if self.current_source_type == "dynamic":
-                self.motion_percentage = random.choice([10,20,30,40])
+                self.motion_percentage = random.choice([10, 20, 30, 40])
                 if not self.config.USE_RENDERED_OBSERVATIONS:
                     self.set_source_state(list(self.graph.nodes[self._source_position_index]['point']),
                                           quat_from_angle_axis(np.deg2rad(self.source_rotation_angle),
@@ -599,7 +592,8 @@ class SoundSpacesSim(Simulator, ABC):
             else:
                 self._sim.set_agent_state(list(self.graph.nodes[self._receiver_position_index]['point']),
                                           quat_from_angle_axis(np.deg2rad(self._rotation_angle), np.array([0, 1, 0])))
-            addingMovingStep = random.choices([True, False], cum_weights=(self.motion_percentage, (100 - self.motion_percentage) ), k=1)
+            addingMovingStep = random.choices([True, False],
+                                              cum_weights=(self.motion_percentage, (100 - self.motion_percentage)), k=1)
             if self.moving_source and addingMovingStep[0] and self.current_source_type == "dynamic":
                 if self.moving_source_nodes_list_index < len(self.moving_source_nodes_list):
                     while not os.path.exists(
@@ -789,7 +783,7 @@ class SoundSpacesSim(Simulator, ABC):
         for position_b in position_bs:
             index_a = self._position_to_index(position_a)
             # update position b if moving source
-            if self.moving_source and self.current_source_type == "dynamic" :
+            if self.moving_source and self.current_source_type == "dynamic":
                 position_b = self.get_source_state().source_position.tolist()
             index_b = self._position_to_index(position_b)
             assert index_a is not None and index_b is not None

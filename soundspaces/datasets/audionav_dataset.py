@@ -6,8 +6,8 @@
 
 import gzip
 import json
-import os
 import logging
+import os
 from typing import List, Optional
 
 from habitat.config import Config
@@ -18,7 +18,6 @@ from habitat.tasks.nav.nav import (
     NavigationGoal,
     ShortestPathPoint,
 )
-
 
 ALL_SCENES_MASK = "*"
 CONTENT_SCENES_PATH_FIELD = "content_scenes_path"
@@ -130,7 +129,7 @@ class AudioNavDataset(Dataset):
         self.episodes = episodes_to_keep
 
     def from_json(
-        self, json_str: str, scenes_dir: Optional[str] = None, scene_filename: Optional[str] = None
+            self, json_str: str, scenes_dir: Optional[str] = None, scene_filename: Optional[str] = None
     ) -> None:
         deserialized = json.loads(json_str)
         if CONTENT_SCENES_PATH_FIELD in deserialized:
@@ -143,8 +142,8 @@ class AudioNavDataset(Dataset):
             if scenes_dir is not None:
                 if episode.scene_id.startswith(DEFAULT_SCENE_PATH_PREFIX):
                     episode.scene_id = episode.scene_id[
-                        len(DEFAULT_SCENE_PATH_PREFIX):
-                    ]
+                                       len(DEFAULT_SCENE_PATH_PREFIX):
+                                       ]
 
                 episode.scene_id = os.path.join(scenes_dir, episode.scene_id)
 

@@ -4,25 +4,18 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, List, Optional
-from abc import ABC
-import os
 import argparse
-import logging
+import os
 import pickle
 from collections import defaultdict
 
 import numpy as np
+from habitat.tasks.nav.nav import NavigationEpisode, NavigationGoal
+from habitat_sim.utils.common import quat_to_coeffs, quat_from_angle_axis
 
-import habitat_sim
-from habitat.core.registry import registry
-from habitat.core.simulator import AgentState, Simulator
-from habitat.sims.habitat_simulator.habitat_simulator import HabitatSim
-from habitat_sim.utils.common import quat_to_angle_axis, quat_to_coeffs, quat_from_angle_axis, quat_from_coeffs
-from habitat.tasks.nav.nav import NavigationEpisode, NavigationGoal, ShortestPathPoint
+from soundspaces.simulator import SoundSpacesSim
 from soundspaces.tasks.audionav_task import merge_sim_episode_config
 from soundspaces.utils import load_metadata
-from soundspaces.simulator import SoundSpacesSim
 from ss_baselines.dav_nav.config import get_config
 
 
