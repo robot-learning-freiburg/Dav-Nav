@@ -16,7 +16,7 @@ from habitat_sim.utils.common import quat_to_coeffs, quat_from_angle_axis
 from soundspaces.simulator import SoundSpacesSim
 from soundspaces.tasks.audionav_task import merge_sim_episode_config
 from soundspaces.utils import load_metadata
-from ss_baselines.dav_nav.config import get_config
+from ss_baselines.av_nav.config import get_config
 
 
 class Sim(SoundSpacesSim):
