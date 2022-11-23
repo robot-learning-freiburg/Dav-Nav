@@ -1,1 +1,2 @@
 from dynamical_simulator.simulator import SoundSpacesSim
+from dynamical_simulator.dav_metrics import DSNA, DSPL

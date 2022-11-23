@@ -43,9 +43,17 @@ Please cite the paper as follows:
     pip install -e .
 
 ```
-5. Install pytorch with torchaudio and torch vision
+5. Clone & install this repository: 
+  ```
+    cd ..
+    git clone https://github.com/robot-learning-freiburg/Dav-Nav.git
+    cd Dav-Nav/
+    pip install -e .
+
+```
+6. Install pytorch with torchaudio and torch vision
    ```conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=11.1 -c pytorch -c conda-forge```   
-6. Follow the instructions on the [dataset](https://github.com/facebookresearch/sound-spaces/blob/main/soundspaces/README.md) page to download the rendered audio data and datasets,
+7. Follow the instructions on the [dataset](https://github.com/facebookresearch/sound-spaces/blob/main/soundspaces/README.md) page to download the rendered audio data and datasets,
 -> move into data/scene_datasets, then run ```python scripts/cache_observations.py``` to create the data/scene_observations folder
 
 Below we show the commands for training and evaluating AudioGoal on Replica, 

@@ -14,6 +14,7 @@ import abc
 import torch
 import torch.nn as nn
 
+from dynamical_simulator.dav_metrics import DSPL,DSNA
 from ss_baselines.common.utils import CategoricalNetWithMask
 from ss_baselines.av_nav.models.rnn_state_encoder import RNNStateEncoder
 from ss_baselines.av_wan.models.visual_cnn import VisualCNN

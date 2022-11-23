@@ -13,11 +13,14 @@ import numpy as np
 from habitat.config import Config
 from habitat.core.registry import registry
 from habitat.core.simulator import (
+    Sensor,
+    SensorTypes,
     Simulator,
 )
 from habitat.tasks.nav.nav import Measure, EmbodiedTask, Success
-from habitat_sim.utils.common import quat_from_coeffs, quat_to_angle_axis
-
+from habitat_sim.utils.common import quat_from_coeffs, quat_to_angle_axis, quat_rotate_vector
+from habitat.tasks.utils import cartesian_to_polar
+from gym import spaces
 @registry.register_measure
 class DSPL(Measure):
     r"""DSPL (Dynamic Success weighted by Path Length)
@@ -116,4 +119,3 @@ class DSNA(Measure):
             task.measurements.measures['dspl']._required_action_count, self._agent_num_action
         )
         )
-

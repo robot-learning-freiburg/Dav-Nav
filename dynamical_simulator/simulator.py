@@ -32,8 +32,8 @@ from soundspaces.utils import load_metadata
 
 from soundspaces.simulator import overwrite_config
 from soundspaces.simulator import DummySimulator as BaseDummySimulator
-from soundspaces.simulator import Simulator as BaseSimulator
-
+from soundspaces.simulator import SoundSpacesSim as BaseSimulator
+from collections import defaultdict
 
 class DummySimulator(BaseDummySimulator):
     """
@@ -72,7 +72,7 @@ class SoundSpacesSim(BaseSimulator, ABC):
         # self._sim = habitat_sim.Simulator(self.sim_config)
 
         self.source_rotation_angle = None
-        self._egomap_cache = dict()
+        # self._egomap_cache = dict()
 
         if self.config['AUDIO']['moving_val_test_seed']:
             random.seed(self.config.SEED)
@@ -123,6 +123,12 @@ class SoundSpacesSim(BaseSimulator, ABC):
                 self.audioAugmentationType = "Noaugmentation"
             if self.trainWithDistractor:
                 self.addingDistractor = None
+        if self.config.USE_RENDERED_OBSERVATIONS:
+            self._sim.close()
+            del self._sim
+            self._sim = DummySimulator()
+            with open(self.current_scene_observation_file, 'rb') as fo:
+                self._frame_cache = pickle.load(fo)
 
     def get_agent_state(self, agent_id: int = 0) -> habitat_sim.AgentState:
         if not self.config.USE_RENDERED_OBSERVATIONS:
@@ -200,11 +206,11 @@ class SoundSpacesSim(BaseSimulator, ABC):
                 self._spectrogram_cache = dict()
 
             if not is_same_scene:
-                self._egomap_cache = dict()
+                self._egomap_cache = defaultdict(dict)
         else:
             self._audiogoal_cache = dict()
             self._spectrogram_cache = dict()
-            self._egomap_cache = dict()
+            self._egomap_cache = defaultdict(dict)
 
         self._episode_step_count = 0
 
@@ -222,7 +228,7 @@ class SoundSpacesSim(BaseSimulator, ABC):
             else:
                 self.current_source_type = random.choice(["static", "dynamic"])
             if self.current_source_type == "dynamic":
-                self.motion_percentage = random.choice([10, 20, 30, 40])
+                self.motion_percentage = 30 #random.choice([10, 20, 30, 40])
                 if not self.config.USE_RENDERED_OBSERVATIONS:
                     self.set_source_state(list(self.graph.nodes[self._source_position_index]['point']),
                                           quat_from_angle_axis(np.deg2rad(self.source_rotation_angle),
@@ -404,7 +410,8 @@ class SoundSpacesSim(BaseSimulator, ABC):
             binaural_second_audio_convolved = [
                 fftconvolve(self.secondAudio, binaural_rir[:, channel]
                             ) for channel in range(binaural_rir.shape[-1])]
-            audiogoal += np.array(binaural_second_audio_convolved)[:, :self.current_source_sound.shape[0]]
+            if np.array(binaural_second_audio_convolved).shape[1] > audiogoal.shape[1]:
+                audiogoal += np.array(binaural_second_audio_convolved)[:, :self.current_source_sound.shape[0]]
 
         addingDistractorStep = bool(random.getrandbits(1))
         if self.trainWithDistractor and self.addingDistractor and addingDistractorStep:
@@ -434,7 +441,8 @@ class SoundSpacesSim(BaseSimulator, ABC):
             # convolve distractor sound
             distractor_binaural_convolved = [fftconvolve(distractor_sound, distractor_binaural_rir[:, channel]
                                                          ) for channel in range(distractor_binaural_rir.shape[-1])]
-            audiogoal += np.array(distractor_binaural_convolved)[:, :self.current_source_sound.shape[0]]
+            if np.array(distractor_binaural_convolved).shape[1] > audiogoal.shape[1]:
+                audiogoal += np.array(distractor_binaural_convolved)[:, :self.current_source_sound.shape[0]]
 
         return audiogoal
 
@@ -503,13 +511,6 @@ class SoundSpacesSim(BaseSimulator, ABC):
                     self._receiver_position_index,
                     self.moving_source_goal_index))) or self.moving_source_goal_index == self._receiver_position_index or self.moving_source_goal_index == self._source_position_index:
                 self.moving_source_goal_index = random.choice(list(self._position_to_index_mapping.values()))
-
-    def get_egomap_observation(self):
-        joint_index = (self._receiver_position_index, self._rotation_angle)
-        if joint_index in self._egomap_cache:
-            return self._egomap_cache[joint_index]
-        else:
-            return None
 
     def seed(self, seed):
         self._sim.seed(seed)
