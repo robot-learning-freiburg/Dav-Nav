@@ -1,16 +1,17 @@
 # Catch Me If You Hear Me: Audio-Visual Navigation in Complex Unmapped Environments with Moving Sounds
 
-This Repository provides the source code for the paper "Catch Me If You Hear Me: Audio-Visual Navigation in Complex Unmapped Environments with Moving Sounds", see the [project website](http://dav-nav.cs.uni-freiburg.de/).  
+This Repository provides the source code for the paper "Catch Me If You Hear Me: Audio-Visual Navigation in Complex Unmapped Environments with Moving Sounds" IEEE Robotics and Automation Letters (2023), see the [project website](http://dav-nav.cs.uni-freiburg.de/).  
 
 https://user-images.githubusercontent.com/42060869/185898432-4e5b6d80-374d-41eb-aa7d-99d958202c40.mp4
 
 Please cite the paper as follows:
 
-      @article{younes2021catch,
-            title={Catch Me If You Hear Me: Audio-Visual Navigation in Complex Unmapped Environments with Moving Sounds},
-            author={Younes, Abdelrahman and Honerkamp, Daniel  and Welschehold, Tim  and Valada, Abhinav},
-            journal={arXiv preprint arXiv:2111.14843},
-            year={2021},
+      @article{younes2023catch,
+        title={Catch me if you hear me: Audio-visual navigation in complex unmapped environments with moving sounds},
+        author={Younes, Abdelrahman and Honerkamp, Daniel and Welschehold, Tim and Valada, Abhinav},
+        journal={IEEE Robotics and Automation Letters},
+        year={2023},
+        publisher={IEEE}
       }
       
 ## Installation 
